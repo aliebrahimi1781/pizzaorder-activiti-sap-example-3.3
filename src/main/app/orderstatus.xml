@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd 
+http://www.mulesoft.org/schema/mule/ee/jdbc http://www.mulesoft.org/schema/mule/ee/jdbc/current/mule-jdbc-ee.xsd 
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd 
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd 
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd ">
+    <jdbc-ee:connector name="jdbcEeConnector2" dataSource-ref="jdbcDataSource" transactionPerMessage="true" pollingFrequency="1000" doc:name="Database">
+        <jdbc-ee:query key="query-getOrder" value="SELECT * FROM orders WHERE orderId = #[payload]"/>
+    </jdbc-ee:connector>
+    <flow name="orderstatusFlow1" doc:name="orderstatusFlow1">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="orderStatusService" doc:name="HTTP"/>
+        <cxf:jaxws-service doc:name="SOAP" serviceClass="com.mulesoft.demo.pizza.services.OrderStatusService"/>
+        <jdbc-ee:outbound-endpoint exchange-pattern="request-response" queryKey="query-getOrder" queryTimeout="-1" connector-ref="jdbcEeConnector2" doc:name="Fetch order status"/>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size() &gt; 0]">
+                <processor-chain>
+                    <set-payload value="#[payload[0].orderStatus]" doc:name="Set Payload to order status"/>
+                </processor-chain>
+            </when>
+            <otherwise>
+                <processor-chain>
+                    <set-payload value="Order not found" doc:name="Set Payload to order not found"/>
+                </processor-chain>
+            </otherwise>
+        </choice>
+    </flow>
+</mule>

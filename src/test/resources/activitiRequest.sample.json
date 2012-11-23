@@ -1,0 +1,9 @@
+{
+	"processDefinitionKey": "pizzaProcess",
+	"customerName": "Jesus De Oliveira",
+	"customerAddress": "77 GEARY ST",
+	"customerEmail": "jesus.deoliveira@mulesoft.com",
+	"customerNumber": "000123",
+	"orderDetails": "Pepperoni pizza",
+	"orderId": "1234"
+}

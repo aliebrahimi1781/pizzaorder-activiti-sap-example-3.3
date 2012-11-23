@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graph author="Jesus De Oliveira" created="Thu Nov 22 15:31:46 BRST 2012" guiVersion="3.3.0.M2" id="1353613452768" licenseCode="Unlicensed" licenseType="Unknown" modified="Thu Nov 22 15:31:46 BRST 2012" modifiedBy="Jesus De Oliveira" name="order2activiti" revision="1.0" showComponentDetails="false">
+<Global>
+<Metadata __sourcePath="{}/object" _dataStructure="OBJECT" _id="__id" _type="Output" id="Metadata2">
+<Record fieldDelimiter="|" name="object" recordDelimiter="&#10;" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" label="__id" name="__id" type="string"/>
+<Field __sourcePath="{}/object/processDefinitionKey" label="processDefinitionKey" name="processDefinitionKey" type="string"/>
+<Field __sourcePath="{}/object/customerName" label="customerName" name="customerName" type="string"/>
+<Field __sourcePath="{}/object/customerAddress" label="customerAddress" name="customerAddress" type="string"/>
+<Field __sourcePath="{}/object/customerEmail" label="customerEmail" name="customerEmail" type="string"/>
+<Field __sourcePath="{}/object/customerNumber" label="customerNumber" name="customerNumber" type="string"/>
+<Field __sourcePath="{}/object/orderDetails" label="orderDetails" name="orderDetails" type="string"/>
+<Field __sourcePath="{}/object/orderId" label="orderId" name="orderId" type="string"/>
+</Record>
+</Metadata>
+<Metadata __sourcePath="{}/object" _dataStructure="OBJECT" _id="__id" _type="Input" id="Metadata0">
+<Record fieldDelimiter="|" name="PizzaOrder" recordDelimiter="&#10;" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
+<Field __sourcePath="{}/object/customerAddress" label="customerAddress" name="customerAddress" type="string"/>
+<Field __sourcePath="{}/object/customerEmail" label="customerEmail" name="customerEmail" type="string"/>
+<Field __sourcePath="{}/object/customerName" label="customerName" name="customerName" type="string"/>
+<Field __sourcePath="{}/object/orderDetails" label="orderDetails" name="orderDetails" type="string"/>
+</Record>
+</Metadata>
+<Dictionary>
+<Entry id="DictionaryEntry0" input="true" name="inputPayload" output="false" type="object"/>
+<Entry id="DictionaryEntry1" input="false" name="outputPayload" output="true" type="object"/>
+<Entry id="DictionaryEntry2" input="true" name="customerNumber" output="false" type="string"/>
+<Entry id="DictionaryEntry3" input="true" name="orderId" output="false" type="integer"/>
+</Dictionary>
+</Global>
+<Phase number="0">
+<Node enabled="enabled" fileURL="dict:inputPayload" guiHeight="0" guiName="Pojo READER" guiWidth="0" guiX="20" guiY="20" id="BEAN_READER0" type="BEAN_READER">
+<attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Context outPort="0" sequenceField="__id" xpath=".">
+  <Mapping cloverField="customerAddress" trim="true" xpath="customerAddress"/>
+  <Mapping cloverField="customerEmail" trim="true" xpath="customerEmail"/>
+  <Mapping cloverField="customerName" trim="true" xpath="customerName"/>
+  <Mapping cloverField="orderDetails" trim="true" xpath="orderDetails"/>
+</Context>
+]]></attr>
+<attr name="_data_format"><![CDATA[JAVA]]></attr>
+<attr name="schema"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<schema-object>
+  <typed-object-ref type-ref="com.mulesoft.demo.pizza.services.PizzaOrder"/>
+  <typed-object type="java.lang.String"/>
+  <typed-object type="com.mulesoft.demo.pizza.services.PizzaOrder">
+    <typed-object-ref name="customerAddress" type-ref="java.lang.String"/>
+    <typed-object-ref name="customerEmail" type-ref="java.lang.String"/>
+    <typed-object-ref name="customerName" type-ref="java.lang.String"/>
+    <typed-object-ref name="orderDetails" type-ref="java.lang.String"/>
+  </typed-object>
+</schema-object>
+]]></attr>
+</Node>
+<Node charset="UTF-8" enabled="enabled" fileURL="dict:outputPayload" guiHeight="0" guiName="JSON WRITER" guiWidth="0" guiX="900" guiY="20" id="JSON_WRITER0" type="JSON_WRITER">
+<attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<object xmlns:clover="http://www.cloveretl.com/ns/xmlmapping" clover:inPort="0">
+  <processDefinitionKey>$0.processDefinitionKey</processDefinitionKey>
+  <customerName>$0.customerName</customerName>
+  <customerAddress>$0.customerAddress</customerAddress>
+  <customerEmail>$0.customerEmail</customerEmail>
+  <customerNumber>$0.customerNumber</customerNumber>
+  <orderDetails>$0.orderDetails</orderDetails>
+  <orderId>$0.orderId</orderId>
+</object>]]></attr>
+<attr name="_data_format"><![CDATA[JSON]]></attr>
+<attr name="jsonSchemaURL"><![CDATA[.\src\test\resources\activitiRequest.sample.json]]></attr>
+</Node>
+<Node enabled="enabled" guiHeight="0" guiName="object_to_object" guiWidth="0" guiX="460" guiY="20" id="REFORMAT0" type="REFORMAT">
+<attr name="transform"><![CDATA[//#CTL2
+
+// Transforms input record into output record.
+function integer transform() {
+	$out.0.orderId = num2str(dictionary.orderId);
+	$out.0.customerNumber = dictionary.customerNumber;
+	$out.0.processDefinitionKey = "pizzaOrderProcess";
+$out.0.__id=$in.0.__id;
+	$out.0.customerAddress=$in.0.customerAddress + $in.0.customerAddress;
+	$out.0.customerEmail=$in.0.customerEmail;
+	$out.0.customerName=$in.0.customerName;
+	$out.0.orderDetails=$in.0.orderDetails;
+		return ALL;
+}
+
+// Called during component initialization.
+// function boolean init() {}
+
+// Called during each graph run before the transform is executed. May be used to allocate and initialize resources
+// required by the transform. All resources allocated within this method should be released
+// by the postExecute() method.
+// function void preExecute() {}
+
+// Called only if transform() throws an exception.
+// function integer transformOnError(string errorMessage, string stackTrace) {}
+
+// Called during each graph run after the entire transform was executed. Should be used to free any resources
+// allocated within the preExecute() method.
+// function void postExecute() {}
+
+// Called to return a user-defined error message when an error occurs.
+// function string getMessage() {}
+]]></attr>
+</Node>
+<Edge debugMode="true" fromNode="BEAN_READER0:0" guiBendpoints="" id="Edge0" inPort="Port 0 (in)" metadata="Metadata0" outPort="Port 0 (out)" toNode="REFORMAT0:0"/>
+<Edge debugMode="true" fromNode="REFORMAT0:0" guiBendpoints="" id="Edge1" inPort="Port 0 (in)" metadata="Metadata2" outPort="Port 0 (out)" toNode="JSON_WRITER0:0"/>
+</Phase>
+</Graph>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jco name="BAPI_CUSTOMER_FIND">
+  <import>
+    <field name="MAX_CNT" sapDesc="Maximum Number of Records Found">1</field>
+    <field name="PL_HOLD" sapDesc="Meta Char.Permitted"></field>
+  </import>
+  <tables>
+    <table name="SELOPT_TAB">
+      <row rowid="0">
+        <field name="COMP_CODE" sapDesc="Company Code">4000</field>
+        <field name="TABNAME" sapDesc="Table Name">KNA1</field>
+        <field name="FIELDNAME" sapDesc="Field Name">NAME1</field>
+        <field name="FIELDVALUE" sapDesc="Field value">#[payload.customerName]</field>
+      </row>
+    </table>
+  </tables>
+</jco>

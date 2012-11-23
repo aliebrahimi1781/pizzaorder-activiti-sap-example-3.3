@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf" xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc" xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" version="EE-3.3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd 
+http://www.mulesoft.org/schema/mule/ee/jdbc http://www.mulesoft.org/schema/mule/ee/jdbc/current/mule-jdbc-ee.xsd 
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd 
+http://www.mulesoft.org/schema/mule/smtps http://www.mulesoft.org/schema/mule/smtps/current/mule-smtps.xsd 
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd 
+http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd 
+http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd 
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd 
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd ">
+    <spring:beans>
+        <spring:bean id="jdbcDataSource" class="org.enhydra.jdbc.standard.StandardDataSource" destroy-method="shutdown">
+            <spring:property name="driverName" value="${db.driverClassName}"/>
+            <spring:property name="url" value="${db.url}"/>
+        </spring:bean>
+        <spring:bean id="property-placeholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+            <spring:property name="locations">
+                <spring:list>
+                    <spring:value>classpath:sap.properties</spring:value>
+                    <spring:value>classpath:db.properties</spring:value>
+                    <spring:value>classpath:gmail.properties</spring:value>
+                </spring:list>
+            </spring:property>
+        </spring:bean>
+    </spring:beans>
+    <sap:connector name="SapConnector" jcoAsHost="${sap.jcoAsHost}" jcoUser="${sap.jcoUser}" jcoPasswd="${sap.jcoPasswd}" jcoSysnr="${sap.jcoSysnr}" jcoClient="${sap.jcoClient}" jcoLang="${sap.jcoLang}" jcoPoolCapacity="${sap.jcoPoolCapacity}" jcoPeakLimit="${sap.jcoPeakLimit}" doc:name="SAP"/>
+    <jdbc-ee:connector name="jdbcEeConnector" dataSource-ref="jdbcDataSource" transactionPerMessage="true" pollingFrequency="1000" doc:name="Database">
+        <jdbc-ee:query key="query-createOrder" value="CALL sp_createorder(#[payload.customerName], #[payload.customerAddress], #[payload.customerEmail], #[message.outboundProperties['customerNumber']], #[payload.orderDetails], #[orderId;INT;OUT])"/>
+        <jdbc-ee:query key="query-getOrder" value="SELECT * FROM orders WHERE orderId = #[payload.orderId]"/>
+        <jdbc-ee:query key="query-updateConfirmedOrder" value="UPDATE orders SET orderStatus = 'Confirmed' WHERE orderId = #[json:orderId]"/>
+        <jdbc-ee:query key="query-updateRejectedOrder" value="UPDATE orders SET orderStatus = 'Rejected' WHERE orderId = #[json:orderId]"/>
+        <jdbc-ee:query key="query-updateDeliveredOrder" value="UPDATE orders SET orderStatus = 'Delivered' WHERE orderId = #[json:orderId]"/>
+    </jdbc-ee:connector>
+    <smtp:gmail-connector name="smtpGmailConnector" doc:name="Gmail"/>
+    <data-mapper:config name="order2activiti" transformationGraphPath="order2activiti.grf" doc:name="DataMapper"/>
+    <flow name="flow-placeOrder" doc:name="flow-placeOrder" tracking:enable-default-events="true">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="pizzaOrderService" doc:name="HTTP"/>
+        <cxf:jaxws-service serviceClass="com.mulesoft.demo.pizza.services.PizzaOrderService" doc:name="SOAP"/>
+        <enricher source="#[xpath:/jco/tables/RESULT_TAB/row/CUSTOMER]" target="#[header:outbound:customerNumber]" doc:name="Message Enricher">
+            <flow-ref name="subflow-getCustomerNumber" doc:name="subflow-getCustomerNumber"/>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[!message.outboundProperties.customerNumber.empty]">
+                <processor-chain>
+                    <enricher source="#[payload.orderId]" target="#[header:outbound:orderId]" doc:name="Message Enricher">
+                        <jdbc-ee:outbound-endpoint exchange-pattern="request-response" queryKey="query-createOrder" queryTimeout="-1" connector-ref="jdbcEeConnector" doc:name="Create order on DB"/>
+                    </enricher>
+                    <tracking:custom-event event-name="orderReceived" doc:name="Publish business event">
+                        <tracking:meta-data key="customerName" value="#[payload.customerName]"/>
+                        <tracking:meta-data key="orderDetails" value="#[payload.orderDetails]"/>
+                        <tracking:meta-data key="orderId" value="#[header:outbound:orderId]"/>
+                        <tracking:meta-data key="customerNumberSAP" value="#[header:outbound:customerNumber]"/>
+                    </tracking:custom-event>
+                    <async doc:name="Async">
+                        <data-mapper:transform config-ref="order2activiti" doc:name="Prepare ActivitiBPM message">
+                            <data-mapper:input-arguments>
+                                <data-mapper:input-argument key="customerNumber">#[header:outbound:customerNumber]</data-mapper:input-argument>
+                                <data-mapper:input-argument key="orderId">#[header:outbound:orderId]</data-mapper:input-argument>
+                            </data-mapper:input-arguments>
+                        </data-mapper:transform>
+                        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="8080" path="activiti-rest/service/process-instance" mimeType="application/json" user="kermit" password="kermit" doc:name="Start Pizza Order Process in ActivitiBPM"/>
+                    </async>
+                    <set-payload value="Order placed successfully: #[message.outboundProperties.orderId.toString()]" doc:name="Return order id"/>
+                </processor-chain>
+            </when>
+            <otherwise>
+                <processor-chain>
+                    <set-payload value="Order not placed: Customer name not found" doc:name="Return invalid customer message"/>
+                </processor-chain>
+            </otherwise>
+        </choice>
+    </flow>
+    <sub-flow name="subflow-getCustomerNumber" doc:name="subflow-getCustomerNumber">
+        <sap:outbound-endpoint exchange-pattern="request-response" type="function" functionName="BAPI_CUSTOMER_FIND" responseTimeout="10000" definitionFile="sap/customer-find.xml" doc:name="Search customer number in SAP"/>
+        <sap:object-to-xml doc:name="SAP Object to XML"/>
+        <mulexml:xslt-transformer maxIdleTransformers="2" maxActiveTransformers="5" xsl-file="sap2plainxml.xsl" doc:name="XSLT"/>
+    </sub-flow>
+    <flow name="flow-confirmedOrder" doc:name="flow-confirmedOrder">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="backend/order/confirm" doc:name="HTTP"/>
+        <logger message="Order #[json:orderId] was CONFIRMED" level="INFO" doc:name="Logger"/>
+        <all doc:name="All">
+            <processor-chain>
+                <jdbc-ee:outbound-endpoint exchange-pattern="one-way" queryKey="query-updateConfirmedOrder" queryTimeout="-1" connector-ref="jdbcEeConnector" doc:name="Update order status to CONFIRMED"/>
+            </processor-chain>
+            <processor-chain>
+                <set-property propertyName="customerEmail" value="#[json:customerEmail]" doc:name="Save customer email in property"/>
+                <parse-template location="C:\Users\Jesus De Oliveira\MuleStudio\workspace-bauer\pizzaorder-activiti-sap-example-3.3\src\main\resources\emailTemplate.txt" doc:name="Parse email template"/>
+                <smtps:outbound-endpoint host="smtp.gmail.com" user="${gmail.user}" password="${gmail.password}" to="#[header:outbound:customerEmail]" from="${gmail.from}" subject="Your order has been confirmed!" responseTimeout="10000" mimeType="text/html" doc:name="Send email message"/>
+            </processor-chain>
+        </all>
+    </flow>
+    <flow name="flow-rejectedOrder" doc:name="flow-rejectedOrder">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="backend/order/reject" doc:name="HTTP"/>
+        <logger message="Order #[json:orderId] was REJECTED" level="INFO" doc:name="Logger"/>
+        <jdbc-ee:outbound-endpoint exchange-pattern="one-way" queryKey="query-updateRejectedOrder" queryTimeout="-1" connector-ref="jdbcEeConnector" doc:name="Update order status to REJECTED"/>
+    </flow>
+    <flow name="flow-deliveredOrder" doc:name="flow-deliveredOrder">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="backend/order/deliver" doc:name="HTTP"/>
+        <logger message="Order #[json:orderId] was DELIVERED" level="INFO" doc:name="Logger"/>
+        <jdbc-ee:outbound-endpoint exchange-pattern="one-way" queryKey="query-updateDeliveredOrder" queryTimeout="-1" connector-ref="jdbcEeConnector" doc:name="Update order status to DELIVERED"/>
+    </flow>
+</mule>

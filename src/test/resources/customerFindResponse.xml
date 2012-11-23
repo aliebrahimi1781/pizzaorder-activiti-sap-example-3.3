@@ -1,0 +1,54 @@
+<jco name="BAPI_CUSTOMER_FIND" timestamp="1353615290901" version="1.0">
+	<import>
+		<field name="MAX_CNT">1</field>
+		<field name="PL_HOLD"></field>
+	</import>
+	<export>
+		<structure name="RETURN">
+			<field name="TYPE">E</field>
+			<field name="ID">FN</field>
+			<field name="NUMBER">801</field>
+			<field name="MESSAGE">Errors occurred</field>
+			<field name="LOG_NO"></field>
+			<field name="LOG_MSG_NO">000000</field>
+			<field name="MESSAGE_V1"></field>
+			<field name="MESSAGE_V2"></field>
+			<field name="MESSAGE_V3"></field>
+			<field name="MESSAGE_V4"></field>
+		</structure>
+	</export>
+	<tables>
+		<table name="RESULT_TAB">
+			<row id="0">
+				<field name="COMP_CODE">4000</field>
+				<field name="TABNAME">KNA1</field>
+				<field name="FIELDNAME">NAME1</field>
+				<field name="FIELDVALUE">Michael cordova</field>
+				<field name="CUSTOMER">0000100109</field>
+				<field name="PSTG_BLK_G"></field>
+				<field name="PSTG_BLK_C"></field>
+				<field name="DEL_FLAG_G"></field>
+				<field name="DEL_FLAG_C"></field>
+				<field name="TYPE">E</field>
+				<field name="ID">FN</field>
+				<field name="NUMBER">503</field>
+				<field name="MESSAGE">Customer 0000100109 exists, but is not created in
+					company code 4000</field>
+				<field name="LOG_NO"></field>
+				<field name="LOG_MSG_NO">000000</field>
+				<field name="MESSAGE_V1">0000100109</field>
+				<field name="MESSAGE_V2">4000</field>
+				<field name="MESSAGE_V3"></field>
+				<field name="MESSAGE_V4"></field>
+			</row>
+		</table>
+		<table name="SELOPT_TAB">
+			<row id="0">
+				<field name="COMP_CODE">4000</field>
+				<field name="TABNAME">KNA1</field>
+				<field name="FIELDNAME">NAME1</field>
+				<field name="FIELDVALUE">Michael Cordova</field>
+			</row>
+		</table>
+	</tables>
+</jco>

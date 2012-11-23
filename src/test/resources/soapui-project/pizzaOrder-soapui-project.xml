@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project activeEnvironment="Default" name="Pizza order" resourceRoot="" soapui-version="4.5.0" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="PizzaOrderServiceServiceSoapBinding" type="wsdl" bindingName="{http://services.pizza.demo.mulesoft.com/}PizzaOrderServiceServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="http://localhost:8081/pizzaOrderService?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8081/pizzaOrderService?wsdl"><con:part><con:url>http://localhost:8081/pizzaOrderService?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="PizzaOrderServiceService" targetNamespace="http://services.pizza.demo.mulesoft.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://services.pizza.demo.mulesoft.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+    <xs:schema elementFormDefault="unqualified" targetNamespace="http://services.pizza.demo.mulesoft.com/" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="pizzaOrder" type="tns:pizzaOrder"/>
+      <xs:element name="placeOrder" type="tns:placeOrder"/>
+      <xs:element name="placeOrderResponse" type="tns:placeOrderResponse"/>
+      <xs:complexType name="placeOrder">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="order" type="tns:pizzaOrder"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="pizzaOrder">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="customerAddress" type="xs:string"/>
+          <xs:element minOccurs="0" name="customerEmail" type="xs:string"/>
+          <xs:element minOccurs="0" name="customerName" type="xs:string"/>
+          <xs:element minOccurs="0" name="orderDetails" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="placeOrderResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="placeOrderResponse">
+    <wsdl:part element="tns:placeOrderResponse" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="placeOrder">
+    <wsdl:part element="tns:placeOrder" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="PizzaOrderService">
+    <wsdl:operation name="placeOrder">
+      <wsdl:input message="tns:placeOrder" name="placeOrder"></wsdl:input>
+      <wsdl:output message="tns:placeOrderResponse" name="placeOrderResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PizzaOrderServiceServiceSoapBinding" type="tns:PizzaOrderService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="placeOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="placeOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="placeOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="PizzaOrderServiceService">
+    <wsdl:port binding="tns:PizzaOrderServiceServiceSoapBinding" name="PizzaOrderServicePort">
+      <soap:address location="http://localhost:8081/pizzaOrderService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8081/pizzaOrderService</con:endpoint></con:endpoints><con:operation isOneWay="false" action="" name="placeOrder" bindingOperationName="placeOrder" type="Request-Response" outputName="placeOrderResponse" inputName="placeOrder" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8081/pizzaOrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://services.pizza.demo.mulesoft.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ser:placeOrder>
+         <order>
+            <customerAddress>77 Geary St. San Francisco</customerAddress>
+            <customerEmail>jesus.deoliveira@mulesoft.com</customerEmail>
+            <customerName>David Turby</customerName>
+            <orderDetails>Margarita Pizza</orderDetails>
+         </order>
+      </ser:placeOrder>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://services.pizza.demo.mulesoft.com/PizzaOrderService/placeOrder"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Request 2"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8081/pizzaOrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://services.pizza.demo.mulesoft.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ser:placeOrder>
+         <order>
+            <customerAddress>77 Geary St. San Francisco</customerAddress>
+            <customerEmail>jesus.deoliveira@mulesoft.com</customerEmail>
+            <customerName>John Doe</customerName>
+            <orderDetails>Calzone, small</orderDetails>
+         </order>
+      </ser:placeOrder>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://services.pizza.demo.mulesoft.com/PizzaOrderService/placeOrder"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Request 3"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8081/pizzaOrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://services.pizza.demo.mulesoft.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ser:placeOrder>
+         <order>
+            <customerAddress>77 Geary St. San Francisco</customerAddress>
+            <customerEmail>jesus.deoliveira@mulesoft.com</customerEmail>
+            <customerName>Connie Grennan</customerName>
+            <orderDetails>Pepperoni Pizza, large</orderDetails>
+         </order>
+      </ser:placeOrder>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://services.pizza.demo.mulesoft.com/PizzaOrderService/placeOrder"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Request 4"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8081/pizzaOrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://services.pizza.demo.mulesoft.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ser:placeOrder>
+         <order>
+            <customerAddress>77 Geary St. San Francisco</customerAddress>
+            <customerEmail>jesus.deoliveira@mulesoft.com</customerEmail>
+            <customerName>Jesse Daniel</customerName>
+            <orderDetails>Pepperoni Pizza, large</orderDetails>
+         </order>
+      </ser:placeOrder>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://services.pizza.demo.mulesoft.com/PizzaOrderService/placeOrder"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="OrderStatusServiceServiceSoapBinding" type="wsdl" bindingName="{http://services.pizza.demo.mulesoft.com/}OrderStatusServiceServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="http://localhost:8081/orderStatusService?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8081/orderStatusService?wsdl"><con:part><con:url>http://localhost:8081/orderStatusService?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="OrderStatusServiceService" targetNamespace="http://services.pizza.demo.mulesoft.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://services.pizza.demo.mulesoft.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+    <xs:schema elementFormDefault="unqualified" targetNamespace="http://services.pizza.demo.mulesoft.com/" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="getOrderStatus" type="tns:getOrderStatus"/>
+      <xs:element name="getOrderStatusResponse" type="tns:getOrderStatusResponse"/>
+      <xs:complexType name="getOrderStatus">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="orderId" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getOrderStatusResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getOrderStatus">
+    <wsdl:part element="tns:getOrderStatus" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getOrderStatusResponse">
+    <wsdl:part element="tns:getOrderStatusResponse" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="OrderStatusService">
+    <wsdl:operation name="getOrderStatus">
+      <wsdl:input message="tns:getOrderStatus" name="getOrderStatus"></wsdl:input>
+      <wsdl:output message="tns:getOrderStatusResponse" name="getOrderStatusResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="OrderStatusServiceServiceSoapBinding" type="tns:OrderStatusService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getOrderStatus">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getOrderStatus">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getOrderStatusResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="OrderStatusServiceService">
+    <wsdl:port binding="tns:OrderStatusServiceServiceSoapBinding" name="OrderStatusServicePort">
+      <soap:address location="http://localhost:8081/orderStatusService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8081/orderStatusService</con:endpoint></con:endpoints><con:operation isOneWay="false" action="" name="getOrderStatus" bindingOperationName="getOrderStatus" type="Request-Response" outputName="getOrderStatusResponse" inputName="getOrderStatus" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8081/orderStatusService</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://services.pizza.demo.mulesoft.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ser:getOrderStatus>
+         <orderId>42</orderId>
+      </ser:getOrderStatus>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://services.pizza.demo.mulesoft.com/OrderStatusService/getOrderStatus"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>

@@ -1,0 +1,8 @@
+Hi, #[json:customerName]!
+
+Your pizza order #[json:orderId] has been successfully confirmed!
+
+Best regards!
+
+--
+The Mulesoft Pizza Shop
